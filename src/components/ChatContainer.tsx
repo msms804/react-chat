@@ -5,12 +5,14 @@ import ChatBox from "./ChatBox";
 const ChatContainer = () => {
     return (<>
         {/*Header */}
-        <div>
-            <span>To:</span>
-            <span>Minsung</span>
+        <div className="flex flex-col">
+            <div>
+                <span>To:</span>
+                <span>Minsung</span>
+            </div>
+            <ChatList />
+            <ChatBox />
         </div>
-        <ChatList />
-        <ChatBox />
     </>)
 }
 export default ChatContainer;
