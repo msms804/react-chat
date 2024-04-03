@@ -10,7 +10,7 @@ const ChatBox = () => {
     //     .catch(() => {
 
     //     })
-    //1. db에 저장한다
+
     return (<>
         <div className="flex mt-auto">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-4 h-4">

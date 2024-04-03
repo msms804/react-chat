@@ -1,6 +1,7 @@
 import ChatBox from "../components/ChatBox";
 import ChatList from "../components/ChatList";
 import ChatRooms from "../components/ChatRooms";
+import { UserProfile } from "../components/UserProfile";
 const Main = () => {
     return (<>
         <div className="flex h-screen">
@@ -46,7 +47,7 @@ const Main = () => {
                             <img src="https://daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg" />
                         </div>
                     </div>
-                    <div className="ml-2">msms804</div>
+                    <div className="ml-2"><UserProfile /></div>
                 </div>
 
             </div>
