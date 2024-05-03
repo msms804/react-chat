@@ -1,5 +1,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
+//채팅칠때 리렌더링 방지
+//https://tecoble.techcourse.co.kr/post/2021-05-15-react-ref/
 
 const ChatBox = () => {
     //여기서 db로 post요청 필요,
@@ -12,13 +14,6 @@ const ChatBox = () => {
     const [userId, setUserId] = useState(null);
     const [username, setUsername] = useState(null);
 
-    // axios.post("http://localhost:8080/api/chat")
-    //     .then(() => {
-
-    //     })
-    //     .catch(() => {
-
-    //     })
     //로그인한 유저 정보가져오기
     useEffect(() => {
         axios.get('http://localhost:8080/accessToken', { withCredentials: true })
