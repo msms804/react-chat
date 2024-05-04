@@ -23,7 +23,8 @@ const ChatList = () => {
     const [messages, setMessages] = useState<ChatData[]>([]); // 채팅 메시지를 담을 상태
     const observer = useRef<IntersectionObserver | null>(null);
     const chatContainerRef = useRef<HTMLDivElement>(null);
-
+    const bottomRef = useRef<HTMLDivElement>(null);
+    const [chatScroll, setChatScroll] = useState<number | undefined>();
     // 무한 스크롤을 위한 데이터 가져오기 함수
     const fetchChats = async (pageParam: number) => {
         try {//이건 그.. 모냐.. 다른파일로 연습하구..
@@ -37,7 +38,7 @@ const ChatList = () => {
             console.log("Error fetching chats", error);
             throw error;
         }
-    };//오.. 된다 근데 이거 어케고쳐 씨발
+    };
     const { data, fetchNextPage, hasNextPage } = useInfiniteQuery<ChatData[], Error>({
         queryKey: ['chats'],
         queryFn: ({ pageParam }) => fetchChats(pageParam as number),
@@ -51,26 +52,56 @@ const ChatList = () => {
             }
             return undefined; // 다음 페이지 없음
         },
-        //getPreviousPageParam: (firstPage) => firstPage.at(0)?.messagdId,
         initialPageParam: 1,
     })
 
-
+    //scrollTop === 0 && !hasNextPage일때(스크롤바 맨위에있을때) 
+    //ref.current.scrollTop(ref.current.getScrollHeight() - values.scrollHeight)
     useEffect(() => {
+        /*
+            **알고리즘
+            어떻게 그 전 스크롤 위치 저장할것인가?(새로운데이터 불러오기전 스크롤위치)
+        */
+
+        chatContainerRef.current?.scrollTop;
+        console.log("새로 불러왔을때의 스크롤 높이", chatContainerRef.current?.scrollHeight)
+        setChatScroll(chatContainerRef.current?.scrollHeight)
+        console.log("불러오기전의 스크롤 높이", chatScroll)
+        if (chatContainerRef.current && typeof chatScroll !== 'undefined') {
+            console.log("구하려는 차", chatContainerRef.current.scrollHeight - chatScroll);
+        }
+        if (data && data.pages && data.pages.length > 1 && chatContainerRef.current && typeof chatScroll !== 'undefined') {//잘되는거 맞겠지?
+            chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight - chatScroll
+        }//왜 밑에서는 data?.pages.length === 1해도 에러 안뜨는데 여기선 생겨 ㅡㅡ
+
+
+    }, [data])
+    useEffect(() => {
+        if (data?.pages.length === 1 && chatContainerRef.current) {
+            chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+        }
+    }, [data])
+
+    useEffect(() => {//아.. 데이터부터 가져와야겟구만..
         const fetchInitialMessages = () => {
             try {
-                // const response = await axios.get('http://localhost:8080/api/chats/list?page=1&pageSize=20');
-                // setMessages(response.data);
-
                 if (chatContainerRef.current) {
-                    chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+                    fetchNextPage(); //async await 쓰면 어떻게 달라지는거지?
                 }
             } catch (error) {
                 console.log(error);
             }
         };
 
-        fetchInitialMessages();//왜 끼발 밑에 고정안돼 ;;
+        fetchInitialMessages();
+        //data를 불러오고 스크롤 조정해야하는데 이게 첫번째만 렌더링 되다보니까 이 스크롤 조정코드가 작동안함
+        // if (data && chatContainerRef.current) {
+        //     console.log("1: scrollTop ", chatContainerRef.current.scrollTop);
+        //     chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+        //     console.log("2: scrollHeight", chatContainerRef.current.scrollHeight);
+        //     console.log("3: scrollTop ", chatContainerRef.current.scrollTop);
+
+        // }
 
         const options = {
             root: null,
@@ -100,27 +131,21 @@ const ChatList = () => {
             console.log("새로운 데이터 로드");
         }
     };
-    const forTest = () => {
-        console.log(data?.pages[0].reverse());
-    }
     const flatData = data?.pages?.flat().reverse();
     return (
         <div ref={chatContainerRef} className="mb-auto overflow-auto">
             <p id="observer">옵저버</p>
-            {/* messages 상태에 있는 데이터로 Chat 컴포넌트 렌더링 */}
-            {/* {messages && messages.length > 0 && messages.map((item: ChatData) => <Chat key={item._id} message={item} />)} */}
-            {/* {data?.pages?.map((page: any) => (
+            {/* {data?.pages?.reverse().map((page: any) => (
                 <React.Fragment>
                     {page.reverse().map((item: any) => (
                         <Chat key={item._id} message={item} />
                     ))}
                 </React.Fragment>
             ))} */}
-            {flatData?.map((item: any) => (
+            {/*hasNextPage && */ flatData?.map((item: any) => (
                 <Chat key={item._id} message={item}></Chat>
             ))}
-            <button onClick={forTest}>테스트용</button>
-
+            <p ref={bottomRef}>bottom</p>
         </div>
     );
 };
