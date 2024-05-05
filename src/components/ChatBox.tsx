@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 //채팅칠때 리렌더링 방지
 //https://tecoble.techcourse.co.kr/post/2021-05-15-react-ref/
 
-const ChatBox = () => {
+const ChatBox = ({ chatContainerRef }: { chatContainerRef: React.RefObject<HTMLDivElement> }) => {
     //여기서 db로 post요청 필요,
     /**
      * 1. 입력한 메시지 state에 담는다
@@ -32,6 +32,9 @@ const ChatBox = () => {
     //submit 함수
     const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        if (chatContainerRef.current) {
+            chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+        }
         const sendDate = new Date();
         // message, sendDate, userId, username, _id(이건 자동생성인가봄)
         axios.post('http://localhost:8080/api/chat', { message, sendDate, userId, username })

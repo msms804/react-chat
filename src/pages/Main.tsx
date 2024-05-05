@@ -2,7 +2,9 @@ import ChatBox from "../components/ChatBox";
 import ChatList from "../components/ChatList";
 import ChatRooms from "../components/ChatRooms";
 import { UserProfile } from "../components/UserProfile";
+import { useRef } from "react";
 const Main = () => {
+    const chatContainerRef = useRef(null);
     return (<>
         <div className="flex h-screen">
             {/* <Sidebar /> */}
@@ -56,8 +58,8 @@ const Main = () => {
             </div>
             <div className="w-2/3 bg-zinc-100 flex flex-col">
                 <div className="bg-white">to: JHwan</div>
-                <ChatList />
-                <ChatBox />
+                <ChatList forwardedRef={chatContainerRef} />
+                <ChatBox chatContainerRef={chatContainerRef} />
             </div>
         </div>
     </>)

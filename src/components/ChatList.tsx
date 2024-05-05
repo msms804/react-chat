@@ -19,10 +19,10 @@ interface ChatData {
     4. state갱신 --> 2차원배열을 아마 1차원으로 바꾸려면 flat함수 써야할듯
     5. 그리고 렌더링할때 아마 또 리버스로 렌더링해야할지도?
 */
-const ChatList = () => {
+const ChatList = ({ forwardedRef }: { forwardedRef: React.RefObject<HTMLDivElement> }) => {
     const [messages, setMessages] = useState<ChatData[]>([]); // 채팅 메시지를 담을 상태
     const observer = useRef<IntersectionObserver | null>(null);
-    const chatContainerRef = useRef<HTMLDivElement>(null);
+    //const chatContainerRef = useRef<HTMLDivElement>(null);
     const bottomRef = useRef<HTMLDivElement>(null);
     const [chatScroll, setChatScroll] = useState<number | undefined>();
     // 무한 스크롤을 위한 데이터 가져오기 함수
@@ -63,29 +63,30 @@ const ChatList = () => {
             어떻게 그 전 스크롤 위치 저장할것인가?(새로운데이터 불러오기전 스크롤위치)
         */
 
-        chatContainerRef.current?.scrollTop;
-        console.log("새로 불러왔을때의 스크롤 높이", chatContainerRef.current?.scrollHeight)
-        setChatScroll(chatContainerRef.current?.scrollHeight)
-        console.log("불러오기전의 스크롤 높이", chatScroll)
-        if (chatContainerRef.current && typeof chatScroll !== 'undefined') {
-            console.log("구하려는 차", chatContainerRef.current.scrollHeight - chatScroll);
-        }
-        if (data && data.pages && data.pages.length > 1 && chatContainerRef.current && typeof chatScroll !== 'undefined') {//잘되는거 맞겠지?
-            chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight - chatScroll
+
+        //console.log("새로 불러왔을때의 스크롤 높이", forwardedRef.current?.scrollHeight)
+        setChatScroll(forwardedRef.current?.scrollHeight)
+        // console.log("불러오기전의 스크롤 높이", chatScroll)
+        // if (forwardedRef.current && typeof chatScroll !== 'undefined') {
+        //     console.log("구하려는 차", forwardedRef.current.scrollHeight - chatScroll);
+        // }
+
+        if (data && data.pages && data.pages.length > 1 && forwardedRef.current && typeof chatScroll !== 'undefined') {//잘되는거 맞겠지?
+            forwardedRef.current.scrollTop = forwardedRef.current.scrollHeight - chatScroll
         }//왜 밑에서는 data?.pages.length === 1해도 에러 안뜨는데 여기선 생겨 ㅡㅡ
 
 
-    }, [data])
+    }, [data])//여기서 deps에 data가 들어가는게 맞을까?
     useEffect(() => {
-        if (data?.pages.length === 1 && chatContainerRef.current) {
-            chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+        if (data?.pages.length === 1 && forwardedRef.current) {
+            forwardedRef.current.scrollTop = forwardedRef.current.scrollHeight;
         }
     }, [data])
 
     useEffect(() => {//아.. 데이터부터 가져와야겟구만..
         const fetchInitialMessages = () => {
             try {
-                if (chatContainerRef.current) {
+                if (forwardedRef.current) {
                     fetchNextPage(); //async await 쓰면 어떻게 달라지는거지?
                 }
             } catch (error) {
@@ -133,7 +134,7 @@ const ChatList = () => {
     };
     const flatData = data?.pages?.flat().reverse();
     return (
-        <div ref={chatContainerRef} className="mb-auto overflow-auto">
+        <div ref={forwardedRef} className="mb-auto overflow-auto">
             <p id="observer">옵저버</p>
             {/* {data?.pages?.reverse().map((page: any) => (
                 <React.Fragment>
