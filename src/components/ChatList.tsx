@@ -3,7 +3,6 @@ import { useEffect, useRef, useState } from "react";
 import Chat from "./Chat";
 import axios from "axios";
 import { useInfiniteQuery } from "@tanstack/react-query";
-
 // 사용할 Chat 데이터 타입 정의
 interface ChatData {
     _id: string;
@@ -23,8 +22,8 @@ const ChatList = ({ forwardedRef }: { forwardedRef: React.RefObject<HTMLDivEleme
     const [messages, setMessages] = useState<ChatData[]>([]); // 채팅 메시지를 담을 상태
     const observer = useRef<IntersectionObserver | null>(null);
     //const chatContainerRef = useRef<HTMLDivElement>(null);
-    const bottomRef = useRef<HTMLDivElement>(null);
     const [chatScroll, setChatScroll] = useState<number | undefined>();
+
     // 무한 스크롤을 위한 데이터 가져오기 함수
     const fetchChats = async (pageParam: number) => {
         try {//이건 그.. 모냐.. 다른파일로 연습하구..
@@ -146,7 +145,6 @@ const ChatList = ({ forwardedRef }: { forwardedRef: React.RefObject<HTMLDivEleme
             {/*hasNextPage && */ flatData?.map((item: any) => (
                 <Chat key={item._id} message={item}></Chat>
             ))}
-            <p ref={bottomRef}>bottom</p>
         </div>
     );
 };

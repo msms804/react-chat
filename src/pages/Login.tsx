@@ -1,17 +1,19 @@
 import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 interface User {
     username: string;
 }
 const Login = () => {
-    const [username, setUsername] = useState('');
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [isLogin, setIsLogin] = useState(false);
     const [user, setUser] = useState<User | null>(null);
+    const navigate = useNavigate();
 
     const onChangeUsername = (e: any) => {
-        setUsername(e.target.value)
+        setEmail(e.target.value)
     }
     const onChangePassword = (e: any) => {
         setPassword(e.target.value);
@@ -19,11 +21,12 @@ const Login = () => {
     const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         axios.post('http://localhost:8080/api/login',
-            { email: username, password },
+            { email, password },
             { withCredentials: true },
         ).then(() => {
             console.log("서버로 정보보냄")
-            //여기 리다이렉트 코드 짜야
+            //여기 리다이렉트 코드 짜야 
+            navigate('/');
         }).catch((err) => {
             console.log("로그인 실패?", err)
         })
@@ -83,7 +86,7 @@ const Login = () => {
             <form className="w-80" onSubmit={onSubmit}>
                 <label className="block mb-4">
                     <span>이메일 주소</span>
-                    <input type="username" id="username" name="username" value={username} onChange={onChangeUsername} className="input w-full mt-1 border border-gray-300 rounded-md" />
+                    <input type="username" id="username" name="username" value={email} onChange={onChangeUsername} className="input w-full mt-1 border border-gray-300 rounded-md" />
                 </label>
                 <label className="block mb-4">
                     <span>비밀번호</span>
