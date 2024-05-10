@@ -5,6 +5,8 @@ export const Mypage = () => {
     //유저정보 불러오는건 자주 있으니까 리액트 쿼리로 빼도될듯
     //메인페이지에 왼쪽 하단에 있는 유저도 useQuery쓰는 방법으로 바꾸기
 
+
+
     return (
         <div>
             <div className='flex flex-col h-screen'>
