@@ -1,31 +1,30 @@
 import axios from "axios"
 import { useEffect, useState } from "react"
+import useUserData from "../queries/user";
+import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState, setSelectedMenu } from "../redux/store";
 
-interface User {
-    id: number;
-    username: string;
-}
+
 export const UserProfile = () => {
-    const [user, setUser] = useState<User | null>(null);
-    useEffect(() => {//이걸 리액트 쿼리로 만들어서 빼야할듯
-        try {
-            axios.get('http://localhost:8080/accessToken', { withCredentials: true })
-                .then((res) => {
-                    setUser(res.data);
-                })
-                .catch((error) => {
-                    console.log(error);
-                })
-        } catch (error) {
-            console.log(error);
-        }
-    }, [])
-    useEffect(() => {
-        console.log('user: ', user)
-    }, [user])
+    //const [user, setUser] = useState<User | null>(null);
+    const { isLoading, error, data } = useUserData();
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
+    const selectedMenu = useSelector((state: RootState) => state.menu.selectedMenu)
+
+    const onClickChangePage = (menu: string) => {
+        //navigate('/mypage')
+        dispatch(setSelectedMenu(menu))
+    }
+
+    if (isLoading) return <div>Loading...</div>
+    if (error) return <div>Error: {error.message}</div>
+
     return (
         <div>
-            {user ? user.username : <div>로그인하세요</div>}
+            {/* {user ? user.username : <div>로그인하세요</div>} */}
+            <div className="text-sm" onClick={() => { onClickChangePage('mypage') }}>{data.username}</div>
         </div>
     )
 }

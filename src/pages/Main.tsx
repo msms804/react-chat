@@ -2,9 +2,18 @@ import ChatBox from "../components/ChatBox";
 import ChatList from "../components/ChatList";
 import ChatRooms from "../components/ChatRooms";
 import { UserProfile } from "../components/UserProfile";
-import { useRef } from "react";
+import { useRef, useState } from "react";
+import { Mypage } from "./Mypage";
+import { useSelector, useDispatch } from "react-redux";
+//import { RootState } from "@reduxjs/toolkit/";
+import { RootState } from "../redux/store";
+import { Route, Routes } from "react-router-dom";
+import Login from "./Login";
 const Main = () => {
     const chatContainerRef = useRef(null);
+    // const [selectedMenu, setSelectedMenu] = useState('mypage');
+    const selectedMenu = useSelector((state: RootState) => state.menu.selectedMenu);
+    const dispatch = useDispatch();
     return (<>
         <div className="flex h-screen">
             {/* <Sidebar /> */}
@@ -56,11 +65,26 @@ const Main = () => {
             <div className="w-1/5 space-y-4">
                 <ChatRooms />
             </div>
-            <div className="w-2/3 bg-zinc-100 flex flex-col">
-                <div className="bg-white">to: JHwan</div>
-                <ChatList forwardedRef={chatContainerRef} />
-                <ChatBox chatContainerRef={chatContainerRef} />
-            </div>
+            {/**chatDetail.tsx?  */}
+            {selectedMenu === 'chat' && (
+                <div className="w-2/3 bg-zinc-100 flex flex-col">
+                    <div className="bg-white">to: JHwan</div>
+                    <ChatList forwardedRef={chatContainerRef} />
+                    <ChatBox chatContainerRef={chatContainerRef} />
+                </div>
+            )}
+
+            {selectedMenu === 'mypage' && (
+                <div className="w-2/3 bg-zinc-100 flex flex-col">
+                    <Mypage />
+                </div>
+            )}
+            {//안되잖아 썅
+                // <div className="w-2/3 bg-zinc-100 flex flex-col">
+                //     <Route path='/mypage' element={<Mypage />} />
+                //     <Route path="/login" element={<Login />} />
+                // </div>
+            }
         </div>
     </>)
 }

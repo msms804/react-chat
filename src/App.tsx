@@ -12,10 +12,10 @@ function App() {
     <>
       <QueryClientProvider client={queryClient}>
         <Routes>
-          <Route path='/' Component={Main} />
-          <Route path='/login' Component={Login} />
-          <Route path='/signup' Component={SignUp} />
-          <Route path='/mypage' Component={Mypage} />
+          <Route path='/' element={<Main />} />
+          <Route path='/signup' element={<SignUp />} />
+          <Route path='/login' element={<Login />} />
+          <Route path='/mypage' element={<Mypage />} />
         </Routes>
       </QueryClientProvider>
     </>
