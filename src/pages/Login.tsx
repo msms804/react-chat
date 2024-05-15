@@ -32,10 +32,19 @@ const Login = () => {
         })
     }
     const accessToken = () => {
-        axios.get('http://localhost:8080/accesstoken', { withCredentials: true })
+        axios.get('http://localhost:8080/accesstoken', { withCredentials: true }).then(() => {
+            console.log("access toeken 성공")
+        }).catch((err) => {
+            console.log(err)
+        })
     }
     const refreshtoken = () => {
         axios.get('http://localhost:8080/refreshtoken', { withCredentials: true })
+            .then(() => {
+                console.log("refresh token 성공")
+            }).catch((err) => {
+                console.log(err)
+            })
     }
     const logout = () => {
         axios.post('http://localhost:8080/api/logout', {}, { withCredentials: true }
@@ -63,23 +72,6 @@ const Login = () => {
             console.log(error)
         })
     }
-    // useEffect(() => {
-    //     try {
-    //         axios.get('http://localhost:8080/api/login/success', { withCredentials: true }
-    //         ).then((result) => {
-    //             if (result.data) {
-    //                 console.log("tlqkf", result);
-    //                 setIsLogin(true);
-    //                 setUser(result.data)
-    //             }
-    //         }).catch((error: any) => {
-    //             console.log(error)
-    //         })
-    //     } catch (error) {
-    //         console.log(error);
-    //     }
-    //     console.log("대구리아파", isLogin, user)
-    // }, [username, password])
     return (<>
         <div className="flex flex-col items-center justify-center h-screen">
             <header className="text-3xl font-bold mb-8">Open Chat</header>
