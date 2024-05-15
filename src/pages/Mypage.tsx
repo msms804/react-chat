@@ -8,14 +8,14 @@ export const Mypage = () => {
     //메인페이지에 왼쪽 하단에 있는 유저도 useQuery쓰는 방법으로 바꾸기
     const { isLoading, error, data } = useUserData();
     const [selectedFile, setSelectedFile] = useState(null);
-    const [isEditProfile, setIsEditProfile] = useState(false);
+    const [isEditProfile, setIsEditProfile] = useState(false);//이거 필요없는듯?
     const [newUsername, setNewUsername] = useState("");
     const [newComment, setNewComment] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const openEdit = () => {
         console.log(data)
-        setIsEditProfile(true);
+        setIsEditProfile(true);//이거 필요없는듯?
 
         setIsModalOpen(true);
     }
@@ -86,10 +86,6 @@ export const Mypage = () => {
                 </div>
                 <div className=' h-3/4'>
 
-                    {/* {isEditProfile && <input type="file" name="profileImg" accept="image/*" onChange={handleProfileImgChange} />}
-                    {isEditProfile && <input type='text' name='username' onChange={handleEditUsername} value={newUsername} />}
-                    {isEditProfile && <input type='text' name='comment' onChange={handleEditComment} value={newComment} />}
-                    <button onClick={handleUpload}>변경</button> */}
                     <br />
                     <div className='rounded-md bg-stone-700 text-white inline-block py-2 px-4 mt-4 ml-4'>chat</div>
                     <div className='rounded-md bg-stone-700 text-white inline-block py-2 px-4 mt-4 ml-4' onClick={openEdit}>프로필 편집</div>
