@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import Chat from "./Chat";
 import axios from "axios";
 import { useInfiniteQuery } from "@tanstack/react-query";
+import { useParams } from "react-router-dom";
 // 사용할 Chat 데이터 타입 정의
 interface ChatData {
     _id: string;
@@ -10,6 +11,7 @@ interface ChatData {
     message: string;
     sendDate: string;
     userId: string;
+    roomId: string;
 }
 /*
     1. intersection observer react? 라이브러리로 쓰자
@@ -23,12 +25,16 @@ const ChatList = ({ forwardedRef }: { forwardedRef: React.RefObject<HTMLDivEleme
     const observer = useRef<IntersectionObserver | null>(null);
     //const chatContainerRef = useRef<HTMLDivElement>(null);
     const [chatScroll, setChatScroll] = useState<number | undefined>();
+    const { roomId } = useParams<{ roomId: string }>();
+    const [imsi, setImsi] = useState();
 
-    // 무한 스크롤을 위한 데이터 가져오기 함수
-    const fetchChats = async (pageParam: number) => {
-        try {//이건 그.. 모냐.. 다른파일로 연습하구..
+    //무한 스크롤을 위한 데이터 가져오기 함수
+    const fetchChats = async (pageParam: number, roomId?: string) => {
+        try {
+            console.log("roomId", roomId);
             console.log("pageParam 찍어봄", pageParam)
-            const response = await axios.get(`http://localhost:8080/api/chats/list?page=${pageParam}&pageSize=10`);
+            const response = await axios.get(`http://localhost:8080/api/${roomId}/chats/list?page=${pageParam}&pageSize=10`);
+            //http://localhost:8080/api/chats/list?page=${pageParam}&pageSize=10`
             const data = response.data;
             //요기서 데이터(state) 갱신해야할듯
 
@@ -40,7 +46,7 @@ const ChatList = ({ forwardedRef }: { forwardedRef: React.RefObject<HTMLDivEleme
     };
     const { data, fetchNextPage, hasNextPage } = useInfiniteQuery<ChatData[], Error>({
         queryKey: ['chats'],
-        queryFn: ({ pageParam }) => fetchChats(pageParam as number),
+        queryFn: ({ pageParam }) => fetchChats(pageParam as number, roomId),
         getNextPageParam: (lastPage, allPages) => {
             console.log("lastPAge: ", lastPage);
             if (lastPage && lastPage.length > 0) {
@@ -53,6 +59,8 @@ const ChatList = ({ forwardedRef }: { forwardedRef: React.RefObject<HTMLDivEleme
         },
         initialPageParam: 1,
     })
+    //무한 스크롤을 위한 데이터 가져오기 함수
+
 
     //scrollTop === 0 && !hasNextPage일때(스크롤바 맨위에있을때) 
     //ref.current.scrollTop(ref.current.getScrollHeight() - values.scrollHeight)

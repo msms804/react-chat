@@ -7,7 +7,8 @@ import { Mypage } from "./Mypage";
 import { useSelector, useDispatch } from "react-redux";
 //import { RootState } from "@reduxjs/toolkit/";
 import { RootState } from "../redux/store";
-import { Route, Routes } from "react-router-dom";
+import { Outlet, Route, Routes } from "react-router-dom";
+import { Empty } from "../components/Empty";
 import Login from "./Login";
 const Main = () => {
     const chatContainerRef = useRef(null);
@@ -69,7 +70,13 @@ const Main = () => {
             {selectedMenu === 'chat' && (
                 <div className="w-2/3 bg-zinc-100 flex flex-col">
                     <div className="bg-white">to: JHwan</div>
-                    <ChatList forwardedRef={chatContainerRef} />
+                    <Outlet />
+                    {/* <Routes>
+                        <Route path="/chats/empty" element={<Empty />} />
+                        <Route path="/chats/:roomId" element={<ChatList forwardedRef={chatContainerRef} />} />
+                    </Routes> */}
+                    {/* <ChatList forwardedRef={chatContainerRef} />
+                    <ChatBox chatContainerRef={chatContainerRef} /> */}
                     <ChatBox chatContainerRef={chatContainerRef} />
                 </div>
             )}
