@@ -2,7 +2,7 @@ import React from "react";
 import { useEffect, useRef, useState } from "react";
 import Chat from "./Chat";
 import axios from "axios";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { QueryClient, useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
 // 사용할 Chat 데이터 타입 정의
 interface ChatData {
@@ -26,7 +26,7 @@ const ChatList = ({ forwardedRef }: { forwardedRef: React.RefObject<HTMLDivEleme
     //const chatContainerRef = useRef<HTMLDivElement>(null);
     const [chatScroll, setChatScroll] = useState<number | undefined>();
     const { roomId } = useParams<{ roomId: string }>();
-    const [imsi, setImsi] = useState();
+    const queryClient = useQueryClient();
 
     //무한 스크롤을 위한 데이터 가져오기 함수
     const fetchChats = async (pageParam: number, roomId?: string) => {
@@ -44,8 +44,8 @@ const ChatList = ({ forwardedRef }: { forwardedRef: React.RefObject<HTMLDivEleme
             throw error;
         }
     };
-    const { data, fetchNextPage, hasNextPage } = useInfiniteQuery<ChatData[], Error>({
-        queryKey: ['chats'],
+    const { data, fetchNextPage, hasNextPage, refetch, } = useInfiniteQuery<ChatData[], Error>({
+        queryKey: ['chats', roomId],
         queryFn: ({ pageParam }) => fetchChats(pageParam as number, roomId),
         getNextPageParam: (lastPage, allPages) => {
             console.log("lastPAge: ", lastPage);
@@ -58,14 +58,18 @@ const ChatList = ({ forwardedRef }: { forwardedRef: React.RefObject<HTMLDivEleme
             return undefined; // 다음 페이지 없음
         },
         initialPageParam: 1,
+        enabled: !!roomId,
     })
-    //무한 스크롤을 위한 데이터 가져오기 함수
-
+    useEffect(() => {
+        if (roomId) {
+            queryClient.invalidateQueries({ queryKey: ['chats', roomId] });  // 수정된 부분    
+        }
+    }, [roomId, queryClient])
 
     //scrollTop === 0 && !hasNextPage일때(스크롤바 맨위에있을때) 
     //ref.current.scrollTop(ref.current.getScrollHeight() - values.scrollHeight)
     useEffect(() => {
-        /*
+        /* 
             **알고리즘
             어떻게 그 전 스크롤 위치 저장할것인가?(새로운데이터 불러오기전 스크롤위치)
         */

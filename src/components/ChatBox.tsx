@@ -1,25 +1,28 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-//채팅칠때 리렌더링 방지
-//https://tecoble.techcourse.co.kr/post/2021-05-15-react-ref/
+import { useParams } from "react-router-dom";
+import useUserData from '../queries/user'
+
 
 const ChatBox = ({ chatContainerRef }: { chatContainerRef: React.RefObject<HTMLDivElement> }) => {
     //여기서 db로 post요청 필요,
     /**
-     * 1. 입력한 메시지 state에 담는다
-     * 2. 그 state변수 태워서 서버로 보낸다
+        이 컴포넌트에서 db에 userId null로 저장함
+        
      * 
      */
     const [message, setMessage] = useState('');
-    const [userId, setUserId] = useState(null);
-    const [username, setUsername] = useState(null);
+    // const [userId, setUserId] = useState(null);
+    // const [username, setUsername] = useState(null);
+    const rId = useParams();
+    const { isLoading, error, data } = useUserData();
 
     //로그인한 유저 정보가져오기
     useEffect(() => {
         axios.get('http://localhost:8080/accessToken', { withCredentials: true })
             .then((response) => {
-                setUserId(response.data.id)
-                setUsername(response.data.username)
+                // setUserId(response.data.id)
+                // setUsername(response.data.username)
             })
             .catch((error: any) => {
                 console.log(error)
@@ -36,12 +39,18 @@ const ChatBox = ({ chatContainerRef }: { chatContainerRef: React.RefObject<HTMLD
             chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
         }
         const sendDate = new Date();
+        //보통 이렇게 문자열로 저장하는거보다 오브젝트 타입 더 많이쓴다고 함 --gpt피셜
+        const roomId = rId.roomId;
+        const userId = data.email;
+        const username = data.username;
         // message, sendDate, userId, username, _id(이건 자동생성인가봄)
-        axios.post('http://localhost:8080/api/chat', { message, sendDate, userId, username })
+        axios.post('http://localhost:8080/api/chat', { message, sendDate, userId, username, roomId })
             .then((response) => {
                 console.log("메시지 전송 성공", response.data)
                 console.log("전송시간: ", sendDate);//형식 바꿔야
                 console.log("아이디: ", userId)
+                console.log("하암..", data.email)
+                console.log("하암", data.username)
                 console.log("닉네임: ", username)
                 setMessage('');
             })

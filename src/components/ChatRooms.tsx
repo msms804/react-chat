@@ -39,8 +39,6 @@ const ChatRooms = () => {
         }
     };
     const onClickRoom = (room: Room) => {
-        console.log(room._id)
-        //여기서 useNavigate해야
         navigate(`/chats/${room._id}`)
 
     }
