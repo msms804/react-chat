@@ -2,6 +2,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import useUserData from '../queries/user'
+import { io, Socket } from "socket.io-client";
 
 
 const ChatBox = ({ chatContainerRef }: { chatContainerRef: React.RefObject<HTMLDivElement> }) => {
@@ -16,18 +17,46 @@ const ChatBox = ({ chatContainerRef }: { chatContainerRef: React.RefObject<HTMLD
     // const [username, setUsername] = useState(null);
     const rId = useParams();
     const { isLoading, error, data } = useUserData();
+    const [socket, setSocket] = useState<Socket | null>(null);
+
+    useEffect(() => {
+        const newSocket = io('http://localhost:8080', {
+            withCredentials: true,
+            extraHeaders: {
+                "my-custom-header": "abcd",
+            }
+        });
+        newSocket.emit('joinRoom', rId.roomId);
+
+        // newSocket.on('broadcast', (msg) => {
+        //     console.log("Message received:", msg);
+        // })
+
+        newSocket.on('connect', () => {
+            console.log('서버와 소켓 연결')
+        })
+        newSocket.on('disconnect', () => {
+            console.log("서버와 소켓 연결 끊음")
+        })
+        setSocket(newSocket);
+
+        return () => {
+            newSocket.disconnect();
+        }
+    }, [rId])
+
 
     //로그인한 유저 정보가져오기
-    useEffect(() => {
-        axios.get('http://localhost:8080/accessToken', { withCredentials: true })
-            .then((response) => {
-                // setUserId(response.data.id)
-                // setUsername(response.data.username)
-            })
-            .catch((error: any) => {
-                console.log(error)
-            })
-    }, [])
+    // useEffect(() => {
+    //     axios.get('http://localhost:8080/accessToken', { withCredentials: true })
+    //         .then((response) => {
+    //             // setUserId(response.data.id)
+    //             // setUsername(response.data.username)
+    //         })
+    //         .catch((error: any) => {
+    //             console.log(error)
+    //         })
+    // }, [])
 
     const onChangeMessage = (e: React.ChangeEvent<HTMLInputElement>) => {
         setMessage(e.target.value);
@@ -47,16 +76,20 @@ const ChatBox = ({ chatContainerRef }: { chatContainerRef: React.RefObject<HTMLD
         axios.post('http://localhost:8080/api/chat', { message, sendDate, userId, username, roomId })
             .then((response) => {
                 console.log("메시지 전송 성공", response.data)
-                console.log("전송시간: ", sendDate);//형식 바꿔야
-                console.log("아이디: ", userId)
-                console.log("하암..", data.email)
-                console.log("하암", data.username)
-                console.log("닉네임: ", username)
+                // console.log("전송시간: ", sendDate);//형식 바꿔야
+                // console.log("아이디: ", userId)
+                // console.log("하암..", data.email)
+                // console.log("하암", data.username)
+                // console.log("닉네임: ", username)
                 setMessage('');
             })
             .catch((error) => {
                 console.log("메시지 전송 실패", error)
             })
+        if (socket) {
+            socket.emit('message', { room: rId.roomId, message: message, sendDate, userId, username, roomId })
+        }
+
 
     }
 

@@ -4,6 +4,7 @@ import Chat from "./Chat";
 import axios from "axios";
 import { QueryClient, useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
+import { io } from "socket.io-client";
 // 사용할 Chat 데이터 타입 정의
 interface ChatData {
     _id: string;
@@ -27,7 +28,13 @@ const ChatList = ({ forwardedRef }: { forwardedRef: React.RefObject<HTMLDivEleme
     const [chatScroll, setChatScroll] = useState<number | undefined>();
     const { roomId } = useParams<{ roomId: string }>();
     const queryClient = useQueryClient();
-
+    /**
+     * 채팅 실시간으로 받기 수도코드
+     * 0. 여기서도 소켓연결해서 chatbox에 있던 msg 콘솔로 찍어보자
+     * 1. broadcast로 받은 msg를 state에 배열로 저장
+     * 2. flatData에 추가?
+    * 근데 생각해보니가 msg만 저장하면 안되잖음.. 메세지, 날짜, 보낸사람 이름까지
+    */
     //무한 스크롤을 위한 데이터 가져오기 함수
     const fetchChats = async (pageParam: number, roomId?: string) => {
         try {
@@ -60,6 +67,31 @@ const ChatList = ({ forwardedRef }: { forwardedRef: React.RefObject<HTMLDivEleme
         initialPageParam: 1,
         enabled: !!roomId,
     })
+
+    //소켓 초기화 및 메시지 수신 
+    useEffect(() => {
+        const socket = io('http://localhost:8080', {
+            withCredentials: true,
+            extraHeaders: {
+                "my-custom-header": "abcd",
+            }
+        });
+        socket.emit('joinRoom', roomId);
+        console.log(`Joining room: ${roomId}`);
+
+        socket.on('broadcast', (msg) => {
+            console.log("message received:", msg)
+            setMessages((prevMessages) => [...prevMessages, msg])
+        })
+
+        return () => {
+            socket.disconnect();
+        }
+
+    }, [roomId])
+    useEffect(() => {
+        console.log("내힘들다.....", messages)
+    }, [messages])
     useEffect(() => {
         if (roomId) {
             queryClient.invalidateQueries({ queryKey: ['chats', roomId] });  // 수정된 부분    
@@ -69,12 +101,6 @@ const ChatList = ({ forwardedRef }: { forwardedRef: React.RefObject<HTMLDivEleme
     //scrollTop === 0 && !hasNextPage일때(스크롤바 맨위에있을때) 
     //ref.current.scrollTop(ref.current.getScrollHeight() - values.scrollHeight)
     useEffect(() => {
-        /* 
-            **알고리즘
-            어떻게 그 전 스크롤 위치 저장할것인가?(새로운데이터 불러오기전 스크롤위치)
-        */
-
-
         //console.log("새로 불러왔을때의 스크롤 높이", forwardedRef.current?.scrollHeight)
         setChatScroll(forwardedRef.current?.scrollHeight)
         // console.log("불러오기전의 스크롤 높이", chatScroll)
@@ -144,6 +170,7 @@ const ChatList = ({ forwardedRef }: { forwardedRef: React.RefObject<HTMLDivEleme
         }
     };
     const flatData = data?.pages?.flat().reverse();
+    const combinedMessages = [...flatData || [], ...messages]
     return (
         <div ref={forwardedRef} className="mb-auto overflow-auto">
             <p id="observer">옵저버</p>
@@ -154,7 +181,7 @@ const ChatList = ({ forwardedRef }: { forwardedRef: React.RefObject<HTMLDivEleme
                     ))}
                 </React.Fragment>
             ))} */}
-            {/*hasNextPage && */ flatData?.map((item: any) => (
+            {/*hasNextPage && */ combinedMessages?.map((item: any) => (
                 <Chat key={item._id} message={item}></Chat>
             ))}
         </div>
