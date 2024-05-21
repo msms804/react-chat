@@ -3,6 +3,7 @@ import useUserData from '../queries/user'
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useMembersData from "../queries/members";
+import { CreateRoomModal } from "./CreateRoomModal";
 interface Room {
     _id: string;
     roomName: string;
@@ -36,7 +37,7 @@ const ChatRooms = () => {
     const { isLoading: userLoading, error: userError, data: userData } = useUserData();
     const { isLoading: membersLoading, error: membersError, data: membersData } = useMembersData();
     const [members, setMembers] = useState([]);
-
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     const fetchData = async () => {
         try {
@@ -53,6 +54,13 @@ const ChatRooms = () => {
     const onClickRoom = (room: Room) => {
         navigate(`/chats/${room._id}`)
     }
+    const openCreateRoom = () => {
+        // console.log("모달창 왜안더")
+        setIsModalOpen(true);
+    }
+    const closeModal = () => {//모달창 밖 눌러서 끄는건 useRef로
+        setIsModalOpen(false);
+    }
     useEffect(() => {
         //setMembers(membersData);
         console.log('카페에서 찍어봄', membersData)
@@ -65,7 +73,11 @@ const ChatRooms = () => {
     if (userLoading) return <div>loading...</div>
     return (<>
         <div>
-            <div className="font-bold">Chats</div>
+            <div className="flex justify-between items-center p-4">
+                <div className="font-bold">Chats</div>
+                <div onClick={openCreateRoom}>채팅방 생성</div>
+            </div>
+            <CreateRoomModal isOpen={isModalOpen} onClose={closeModal} />
             {room.map((item, index) =>
                 <div key={index} onClick={() => onClickRoom(item)} className="border-b-2 pb-2 pt-2 grid grid-cols-5">
                     <div className="col-span-1">
